@@ -1,0 +1,35 @@
+{
+  "configurations": [
+    {
+      "browse": {
+        "databaseFilename": "${workspaceFolder}/.vscode/browse.vc.db",
+        "limitSymbolsToIncludedHeaders": false
+      },
+      "includePath": [
+        "/home/gabriel/catkin_ws/devel/include/**",
+        "/opt/ros/noetic/include/**",
+        "/home/gabriel/catkin_ws/src/uav_ros_simulation/ros_packages/ardupilot_gazebo/include/**",
+        "/home/gabriel/catkin_ws/src/ICUAS22_AVANT_REPO/drone_controller/include/**",
+        "/home/gabriel/catkin_ws/src/uav_ros_simulation/ros_packages/mav_comm/mav_msgs/include/**",
+        "/home/gabriel/catkin_ws/src/uav_ros_simulation/ros_packages/mav_comm/planning_msgs/include/**",
+        "/home/gabriel/catkin_ws/src/uav_ros_simulation/ros_packages/rotors_simulator/rotors_control/include/**",
+        "/home/gabriel/catkin_ws/src/uav_ros_simulation/ros_packages/rotors_simulator/rotors_gazebo_plugins/include/**",
+        "/home/gabriel/catkin_ws/src/uav_ros_simulation/ros_packages/rotors_simulator/rotors_joy_interface/include/**",
+        "/home/gabriel/catkin_ws/src/storm_gazebo_ros_magnet/include/**",
+        "/home/gabriel/catkin_ws/src/uav_ros_simulation/ros_packages/uav_ros_stack/ros_packages/uav_ros_control/include/**",
+        "/home/gabriel/catkin_ws/src/uav_ros_simulation/ros_packages/uav_ros_stack/ros_packages/uav_ros_general/include/**",
+        "/home/gabriel/catkin_ws/src/uav_ros_simulation/ros_packages/uav_ros_stack/ros_packages/uav_ros_lib/include/**",
+        "/home/gabriel/catkin_ws/src/uav_ros_simulation/ros_packages/uav_ros_stack/ros_packages/uav_ros_tests/include/**",
+        "/home/gabriel/catkin_ws/src/uav_ros_simulation/ros_packages/uav_ros_stack/ros_packages/uav_ros_tracker/include/**",
+        "/home/gabriel/catkin_ws/src/velodyne_simulator/velodyne_gazebo_plugins/include/**",
+        "/usr/include/**"
+      ],
+      "name": "ROS",
+      "intelliSenseMode": "gcc-x64",
+      "compilerPath": "/usr/bin/gcc",
+      "cStandard": "gnu11",
+      "cppStandard": "c++14"
+    }
+  ],
+  "version": 4
+}

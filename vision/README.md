@@ -1,1 +1,0 @@
-# Códigos e documentação da Visão Computacional
