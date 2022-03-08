@@ -4,7 +4,7 @@
 import rospy
 from typing import List
 
-from geometry_msgs.msg import PointStamped
+from geometry_msgs.msg import PoseStamped
 from nav_msgs.msg import Odometry
 
 from custom_msgs_srvs.msg import TrajectoryHandle, Vector3
@@ -12,7 +12,7 @@ from custom_msgs_srvs.srv import TrajectoryHandleService, TrajectoryHandleServic
 
 class DroneCMD():
 
-    def __init__(self, delta: float=0.1) -> None:
+    def __init__(self, delta: float=0.5) -> None:
         """
         Initializa ao services, services proxis, publisher, subscribers and other utils attributes
         @delta: float
@@ -25,7 +25,7 @@ class DroneCMD():
         rospy.Service('/red/avant_cmd/exec_trajectory', TrajectoryHandleService, self.exec_trajectory)
         rospy.Service('/red/avant_cmd/check_position', CheckPosition, self.check_position)
 
-        self.tracker_input_pose_publisher = rospy.Publisher("/red/tracker/input_pose", PointStamped, queue_size=10)
+        self.tracker_input_pose_publisher = rospy.Publisher("/red/tracker/input_pose", PoseStamped, queue_size=10)
 
         rospy.Subscriber("/red/odometry", Odometry, self.odometry_callback, queue_size=10)
 
@@ -39,16 +39,22 @@ class DroneCMD():
         @point: GoToRequest -> point: Vector3
             Contain a points to be visited, return success if the drone visited successfully
         """
-        position = PointStamped()
-        position.point = point.point
+        position = PoseStamped()
+        position.pose.position = point.point
 
-        self.tracker_input_pose_publisher.publish(position)
+        rate = rospy.Rate(10)
+        i = 0
+        while True:
+            self.tracker_input_pose_publisher.publish(position)
+            rate.sleep()
+            i = i + 1
+            if i > 1:
+                break
 
-        rate = rospy.Rate(5)
         while not self.__check_position_func(Vector3(point.point.x, point.point.y, point.point.z)):
             rate.sleep()
-
-        return GoToResponse(True, "Point achievement complete!")
+        
+        return GoToResponse(True, "Delivered on the point!")
 
     def exec_trajectory(self, trajectory: TrajectoryHandleServiceRequest) -> TrajectoryHandleServiceResponse:
         """
@@ -57,18 +63,25 @@ class DroneCMD():
             Contain a list of points to be visited, return success if the path complete successfully
         """
         points: List[Vector3] = trajectory.points
-        position = PointStamped()
+        position = PoseStamped()
 
-        rate = rospy.Rate(5)
+        rate = rospy.Rate(10)
+
         for target in points:
-            position.point = target
+            position.pose.position = target
 
-            self.tracker_input_pose_publisher.publish(position)
+            i = 0
+            while True:
+                self.tracker_input_pose_publisher.publish(position)
+                rate.sleep()
+                i = i + 1
+                if i > 1:
+                    break
 
             while not self.__check_position_func(target):
                 rate.sleep()
 
-        return GoToResponse(True, "Trajectory complete!")
+        return TrajectoryHandleServiceResponse(True, "Trajectory complete!")
 
     def check_position(self, point: CheckPositionRequest) -> CheckPositionResponse:
         """
