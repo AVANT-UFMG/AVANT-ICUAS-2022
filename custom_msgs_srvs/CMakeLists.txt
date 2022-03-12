@@ -11,6 +11,7 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
   message_generation
+  nav_msgs
 )
 
 ## System dependencies are found with CMake's conventions
@@ -57,8 +58,9 @@ add_message_files(
 add_service_files(
   FILES
   CheckPosition.srv
-  TrajectoryHandleService.srv
   GoTo.srv
+  GridPlanner.srv
+  TrajectoryHandleService.srv
 )
 
 ## Generate actions in the 'action' folder
@@ -71,6 +73,7 @@ add_service_files(
 ## Generate added messages and services with any dependencies listed here
 generate_messages(
   DEPENDENCIES
+  nav_msgs
 )
 
 ################################################

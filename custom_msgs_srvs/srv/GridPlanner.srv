@@ -1,0 +1,7 @@
+float64 cell_size
+nav_msgs/OccupancyGrid occ_grid
+Vector3 start_position
+Vector3 goal_position
+---
+bool success
+Vector3[] waypoints
