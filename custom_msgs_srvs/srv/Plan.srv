@@ -1,0 +1,6 @@
+nav_msgs/OccupancyGrid occ_grid
+geometry_msgs/Point start_position
+geometry_msgs/Point goal_position
+---
+bool success
+TrajectoryHandle trajectory

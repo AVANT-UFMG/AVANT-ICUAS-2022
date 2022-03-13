@@ -59,7 +59,7 @@ add_service_files(
   FILES
   CheckPosition.srv
   GoTo.srv
-  GridPlanner.srv
+  Plan.srv
   TrajectoryHandleService.srv
 )
 
@@ -73,6 +73,7 @@ add_service_files(
 ## Generate added messages and services with any dependencies listed here
 generate_messages(
   DEPENDENCIES
+  geometry_msgs
   nav_msgs
 )
 
