@@ -72,7 +72,7 @@ def calculate_artag_position(img,rect):
     return predicted_location
 
 #Recebe a imagem da camera e retorna a bounding box do artag
-def detect_codev2(image):
+def detect_code(image):
 
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
@@ -128,9 +128,11 @@ REAL_LIFE_ARTAG_WIDTH = 0.2
 #MAIN LOOP
 while(not rospy.is_shutdown()):
 
+    if image.any() == None: continue
+
     image_cpy = image.copy()
 
-    rect = detect_codev2(image_cpy)
+    rect = detect_code(image_cpy)
 
     if not rect: continue
 
