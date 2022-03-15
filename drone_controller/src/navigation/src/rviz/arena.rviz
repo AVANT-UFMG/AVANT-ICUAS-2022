@@ -3,7 +3,8 @@ Panels:
     Help Height: 78
     Name: Displays
     Property Tree Widget:
-      Expanded: ~
+      Expanded:
+        - /Map1
       Splitter Ratio: 0.5
     Tree Height: 359
   - Class: rviz/Selection
@@ -50,7 +51,7 @@ Visualization Manager:
       Draw Behind: false
       Enabled: true
       Name: Map
-      Topic: /map
+      Topic: /navigation/map
       Unreliable: false
       Use Timestamp: false
       Value: true
@@ -82,7 +83,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 40.71250915527344
+      Distance: 36.78163528442383
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -98,9 +99,9 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 1.279796838760376
+      Pitch: 1.5697963237762451
       Target Frame: <Fixed Frame>
-      Yaw: 1.5753968954086304
+      Yaw: 1.570396900177002
     Saved: ~
 Window Geometry:
   Displays:
