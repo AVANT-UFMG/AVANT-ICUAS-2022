@@ -9,6 +9,7 @@ import numpy as np
 import networkx as nx
 import cv2
 
+
 class Planner:
     def __init__(self, map_dim, cell_size):
         self.G = None
@@ -19,14 +20,16 @@ class Planner:
         s = rospy.Service('grid_planner', Plan, self.handler)
 
     def handler(self, req):
-        occ_grid = np.reshape(req.occ_grid.data, (req.occ_grid.info.height, req.occ_grid.info.width))
-        occ_grid = self.binarize_map(occ_grid)
+        # map preprocessing
+        m = np.reshape(req.occ_grid.data, (req.occ_grid.info.height, req.occ_grid.info.width))
+        bin_m = self.binarize_map(m)
+        dil_m = self.dilate_map(bin_m)
+
         start_pos = [req.start_position.x, req.start_position.y, req.start_position.z]
         goal_pos = [req.goal_position.x, req.goal_position.y, req.goal_position.z]
 
         self.init_graph(self.cell_size, self.map_dim)
-        # occupied_nodes = self.get_occupied_nodes(occ_grid, int(self.cell_size))
-        # self.remove_occupied_nodes(occupied_nodes)
+        self.remove_occupied_nodes(dil_m, self.cell_size)
         plan = self.plan(start_pos, goal_pos)
 
         waypoints = []
@@ -39,7 +42,7 @@ class Planner:
     def init_graph(self, cell_size, map_dim):
         map_dim = np.array(map_dim)
         self.graph_dim = tuple(np.floor(map_dim/cell_size).astype(int))
-        self.G = nx.grid_graph(dim=self.graph_dim)
+        self.G = nx.grid_graph(dim=self.graph_dim[::-1])
         rospy.loginfo("Grid initialized.")
 
     def binarize_map(self, m, thresh=50):
@@ -47,21 +50,28 @@ class Planner:
         m[m >= thresh] = 100
         return m
 
-    # TODO
-    def dilate_map(self, m):
-        pass
+    def dilate_map(self, m, k_size=5):
+        kernel = np.ones((k_size, k_size))
+        m_img = (m/100 * 255).astype(np.uint8)
+        m_img = cv2.dilate(m_img, kernel)
+        return m_img/255 * 100
 
-    def get_occupied_nodes(self, m, cell_size):
-        occupied_nodes = []
+    def remove_occupied_nodes(self, m, cell_size):
+        rospy.loginfo('Removing occupied nodes from grid graph.')
+        total_nodes = self.G.number_of_nodes()
+        step = m.shape[0]/self.map_dim[0] * cell_size
         for k in range(self.graph_dim[2]):
-            for i in range(0, m.shape[0], cell_size):
-                for j in range(0, m.shape[1], cell_size):
-                    if np.any(m[i:i+cell_size, j:j+cell_size] > 0):
-                        occupied_nodes.append((i, j, k))
-        return occupied_nodes
-
-    def remove_occupied_nodes(self, occupied_nodes):
-        self.G.remove_nodes_from(occupied_nodes)
+            for j in range(self.graph_dim[1]):
+                for i in range(self.graph_dim[0]):
+                    ri, rf = int(j*step), int((j+1)*step)
+                    ci, cf = int(i*step), int((i+1)*step)
+                    if np.any(m[ri:rf, ci:cf] > 0):
+                        try:
+                            self.G.remove_node((i, j, k))
+                            rospy.logdebug('Removed node {}'.format((i, j, k)))
+                        except nx.NetworkXError as e:
+                            rospy.logwarn('Could not remove node {} because: {}'.format((i, j, k), str(e)))
+        rospy.loginfo('{} nodes removed.'.format(total_nodes - self.G.number_of_nodes()))
 
     def pos_to_node(self, pos, cell_size):
         pos = np.floor(np.array(pos)/cell_size).astype(int)
@@ -77,10 +87,12 @@ class Planner:
         start_node = self.pos_to_node(start_pos, self.cell_size)
         goal_node = self.pos_to_node(goal_pos, self.cell_size)
         path = nx.shortest_path(self.G, source=start_node, target=goal_node)
+        rospy.loginfo('Planning is done.')
         waypoints = []
         for p in path:
             waypoints.append(self.node_to_pos(p, self.cell_size))
         return waypoints
+        
 
 rospy.init_node('grid_planner')
 
