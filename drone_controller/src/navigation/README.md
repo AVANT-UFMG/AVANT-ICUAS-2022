@@ -1,4 +1,5 @@
 # Códigos e documentação da Navegação
+Namespace: `navigation`.
 
 ## Pipeline de planejamento
 Para executar a pipeline de planejamento, use o comando
@@ -16,4 +17,4 @@ Os planejadores são implementados como serviços e, para manter a generalidade,
 
 #### Grid Planner
 Parâmetros: 
-- `name: cell_size; default: 2`. Determina o tamanho da aresta da célula usada na discretizaçã do mapa.
+- `name: cell_size; default: 2`. Determina o tamanho da aresta da célula usada na discretização do mapa.
