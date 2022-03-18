@@ -9,6 +9,8 @@
 
         <node pkg="drone_controller" type="planning_manager.py" name="planning_manager" respawn="true" output="screen" >
             <param name="planner" value="grid_planner" />
+
+            <remap from="odom" to="/red/odometry" />
         </node>
 
         <!-- Planners nodes -->
