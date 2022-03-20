@@ -1,0 +1,9 @@
+<launch>
+    <group ns="navigation">
+        <include file="$(find drone_config)/launch/demo.launch" />
+
+        <node pkg="drone_controller" type="moveit_planning.py" name="moveit_planning" respawn="true" output="screen">
+            <remap from="odom" to="/red/odometry" />
+        </node>
+    </group>
+</launch>
