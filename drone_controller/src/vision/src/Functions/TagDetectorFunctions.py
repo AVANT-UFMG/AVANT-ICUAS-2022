@@ -1,6 +1,4 @@
 import cv2 as cv
-from cv2 import blur
-import numpy as np
 from .ImageFunctions import  FilterColorBlack
 from .SquareFunctions import FindSquares
 
@@ -15,8 +13,6 @@ def GetArTag(image, limitCosine, thresholdBlockSize, minArea, maxArea, maxError)
     yCenter = 0
 
     reduceImages = FilterColorBlack(image)
-
-    #blurImage = cv.GaussianBlur(reduceImages,(3,3),0,0)
 
     if debug:
         cv.imshow("debug",reduceImages)
@@ -39,7 +35,6 @@ def GetArTag(image, limitCosine, thresholdBlockSize, minArea, maxArea, maxError)
     if debug:
         cv.imshow("morph",division)
         cv.waitKey(0)
-
 
     thresImage = cv.adaptiveThreshold(division,255,cv.ADAPTIVE_THRESH_MEAN_C,cv.THRESH_BINARY,thresholdBlockSize,0)
 

@@ -25,16 +25,15 @@ def ExecuteMission():
 
     # Go to Point to Detect()
     findTag = False
-    
 
     strategies = GetStrategies()
 
     for strategie in strategies:
-        if findTag == True: break
+        if findTag : break
 
         # The first message is not execute, need analise    
         PublishDeadPoint()
-        if debugMission == True : print("start")
+        if debugMission  : print("start")
 
         for point in strategie:
             squares = []
@@ -43,32 +42,30 @@ def ExecuteMission():
             ImagePoint = None
             
             MoveToPoint(point)
-            if debugMission == True : print("move")
+            if debugMission  : print("move")
 
             ArrivePoint(point)
             print("arrive")
             
             # Scan area to find target 
-
             while  ImagePoint is  None:
                 ImagePoint  = GetImageFromDrone()
 
             squares, xCenter, yCenter = GetArTag(ImagePoint, 0.8, 5, 10, 80, 0.1)
 
-            print(squares, xCenter, yCenter)
+            if debugMission  : print(squares, xCenter, yCenter)
 
             if len(squares) > 0 : 
-                if debugMission == True : print("find")
+                if debugMission  : print("find")
                 findTag = True
                 break
             
-
     # Find point in World
     currentPointDrone = GetDronePoint()
     resultWorldPoint  = EstimatePointPosition(ImagePoint, xCenter, yCenter, currentPointDrone)
     finalImageLabel = LabelImage(squares, ImagePoint)
 
-    if debugMission == True : print("finish")
+    if debugMission  : print("finish")
 
     # Publish Image
     pointEstimatedPub.publish(resultWorldPoint)
