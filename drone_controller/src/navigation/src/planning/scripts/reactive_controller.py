@@ -114,6 +114,8 @@ rospy.init_node('reactive_controller')
 
 controller = ReactiveController()
 
+start_launch_ball = rospy.Publisher('/Task3Controller/Start', Bool, queue_size=10)
+
 rate = rospy.Rate(10)
 while not rospy.is_shutdown():
     if controller.pos.x > 0:
@@ -135,3 +137,5 @@ while not rospy.is_shutdown():
         controller.go(5.0)
     
     rate.sleep()
+
+start_launch_ball.publish(Bool(True))
