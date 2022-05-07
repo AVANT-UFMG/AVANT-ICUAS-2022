@@ -116,28 +116,36 @@ controller = ReactiveController()
 
 start_launch_ball = rospy.Publisher('/Task3Controller/Start', Bool, queue_size=10)
 
-rate = rospy.Rate(10)
-while not rospy.is_shutdown():
+def startProjectCallback(msg: Bool):
+    if msg.data:
 
-    if controller.pos is None or controller.ori is None:
-        rospy.loginfo('Waiting for odometry data.')
-        continue
+        rate = rospy.Rate(10)
+        while not rospy.is_shutdown():
 
-    if controller.closest_obs_dist == -1:
-        rospy.loginfo('Waiting for sensor data.')
-        continue
+            if controller.pos is None or controller.ori is None:
+                rospy.loginfo('Waiting for odometry data.')
+                continue
 
-    next_pose = PoseStamped()
-    if controller.closest_obs_dist < controller.min_dist:
-        controller.leave_obstacle()
-    elif controller.closest_obs_dist < controller.max_step:
-        controller.go(controller.closest_obs_dist)
-    else:
-        controller.go(5.0)
+            if controller.closest_obs_dist == -1:
+                rospy.loginfo('Waiting for sensor data.')
+                continue
 
-    if controller.pos.x > 0:
-            break
-    
-    rate.sleep()
+            next_pose = PoseStamped()
+            if controller.closest_obs_dist < controller.min_dist:
+                controller.leave_obstacle()
+            elif controller.closest_obs_dist < controller.max_step:
+                controller.go(controller.closest_obs_dist)
+            else:
+                controller.go(5.0)
 
-start_launch_ball.publish(Bool(True))
+            if controller.pos.x > 0:
+                    break
+            
+            rate.sleep()
+
+        start_launch_ball.publish(Bool(True))
+
+
+rospy.Subscriber("/red/challenge_started", Bool, startProjectCallback)
+
+rospy.spin()
