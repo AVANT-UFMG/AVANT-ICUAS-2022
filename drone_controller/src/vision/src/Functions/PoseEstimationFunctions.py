@@ -58,7 +58,7 @@ def EstimatePointPosition(image, in_x, in_y, pose):
     #Negative X
     elif math.pi * 3/4 <= yaw_z < math.pi * 5/4:
         print('negX')
-        distance_to_wall = pose.position.x - 12.5
+        distance_to_wall = pose.position.x + 12.5
         horizontal_component = image_shift_x * distance_to_wall / CAMERA_FOCAL_DISTANCE
         vertical_component = image_shift_y * distance_to_wall / CAMERA_FOCAL_DISTANCE
         predicted_location = [pose.position.x - distance_to_wall , pose.position.y + horizontal_component, pose.position.z + vertical_component]
@@ -66,7 +66,7 @@ def EstimatePointPosition(image, in_x, in_y, pose):
     #Negative Y
     elif math.pi * 5/4 <= yaw_z < math.pi * 7/4:
         print('negY')
-        distance_to_wall = pose.position.y - 7.5
+        distance_to_wall = pose.position.y + 7.5
         horizontal_component = image_shift_x * distance_to_wall / CAMERA_FOCAL_DISTANCE
         vertical_component = image_shift_y * distance_to_wall / CAMERA_FOCAL_DISTANCE
         predicted_location = [pose.position.x - horizontal_component , pose.position.y - distance_to_wall, pose.position.z + vertical_component]
