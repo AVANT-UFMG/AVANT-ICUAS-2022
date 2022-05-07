@@ -11,7 +11,7 @@ def DronePointCallBack(data):
     DronePoint = data.pose.pose
 
 rospy.Subscriber("/red/odometry", Odometry, DronePointCallBack)
-pub = rospy.Publisher('PosePublish', PoseStamped, queue_size=100)
+pub = rospy.Publisher("/red/tracker/input_pose", PoseStamped, queue_size=10)
 
 def GetDronePoint():
     global DronePoint
@@ -28,10 +28,10 @@ def ConvertGpsPoint(gpsPoint):
     return msg
 
 def PublishDeadPoint():
-    msg = GetDronePoint()
+    global pub
 
+    msg = GetDronePoint()
     rate = rospy.Rate(10) # 10hz
-    pub = rospy.Publisher('PosePublish', PoseStamped, queue_size=100)
 
     pub.publish(ConvertGpsPoint(msg))
     time.sleep(2)
@@ -39,7 +39,15 @@ def PublishDeadPoint():
 
 def MoveToPoint(point):
     global pub 
-
+    timeW = 0
+    
+    rate = rospy.Rate(10)
+    while pub.get_num_connections() < 1 :
+        rate.sleep()
+        if timeW > 500 : break
+        print("wait")
+        timeW += 1
+    
     pub.publish(point.GetPoseStamped())
     time.sleep(5)
     ArrivePoint(point)
@@ -80,7 +88,6 @@ def ArrivePoint(point):
 
     while(arrive):
         i = i +1
-
         gps_info = GetDronePoint()
         arrive = ComparePoints(point, gps_info)
 

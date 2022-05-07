@@ -10,8 +10,11 @@ from Functions import (GetStrategies, MoveToPoint, ArrivePoint,
                         GetDronePoint, LabelImage, GetImageToPublish, WaitStablePosition)
 
 
+
+debugMission = False
+
 def StartMissionCallback(data):
-    print("start")
+    if debugMission : print("start Mission")
     ExecuteMission()
 
 rospy.Subscriber("/TagDetectionController/Start", Bool, StartMissionCallback)
@@ -19,8 +22,6 @@ rospy.Subscriber("/TagDetectionController/Start", Bool, StartMissionCallback)
 PointEstimatedPub = rospy.Publisher('/red/tag_position_reconstructed', Pose, queue_size=10)
 ImageAnnotatedPub = rospy.Publisher('/red/tag_image_annotated', Image, queue_size=10000)
 TagDetectionFinishPub = rospy.Publisher('/TagDetectionController/Finish', Pose, queue_size=10)
-
-debugMission = False
 
 def ExecuteMission():
     # TODO CheckDroneInArea3()
