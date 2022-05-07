@@ -38,51 +38,26 @@ def EstimatePointPosition(image, in_x, in_y, pose):
     image_shift_x = in_x - image_center[0]
     image_shift_y = image_center[1] - in_y
 
-    x = pose.orientation.x
-    y = pose.orientation.y
-    z = pose.orientation.z
-    w = pose.orientation.w
 
-    roll_x, pitch_y, yaw_z = euler_from_quaternion(x,y,z,w)
-
-    print(math.pi * 1/4, yaw_z, math.pi * 3/4)
-
-    #Positive Y
-    if math.pi * 1/4 <= yaw_z < math.pi * 3/4:
-        print('posY')
-        distance_to_wall = 7.5 - pose.position.y
-        horizontal_component = image_shift_x * distance_to_wall / CAMERA_FOCAL_DISTANCE
-        vertical_component = image_shift_y * distance_to_wall / CAMERA_FOCAL_DISTANCE
-        predicted_location = [pose.position.x + horizontal_component , pose.position.y + distance_to_wall, pose.position.z + vertical_component]
-    
-    #Negative X
-    elif math.pi * 3/4 <= yaw_z < math.pi * 5/4:
-        print('negX')
-        distance_to_wall = pose.position.x - 12.5
-        horizontal_component = image_shift_x * distance_to_wall / CAMERA_FOCAL_DISTANCE
-        vertical_component = image_shift_y * distance_to_wall / CAMERA_FOCAL_DISTANCE
-        predicted_location = [pose.position.x - distance_to_wall , pose.position.y + horizontal_component, pose.position.z + vertical_component]
-
-    #Negative Y
-    elif math.pi * 5/4 <= yaw_z < math.pi * 7/4:
-        print('negY')
-        distance_to_wall = pose.position.y - 7.5
-        horizontal_component = image_shift_x * distance_to_wall / CAMERA_FOCAL_DISTANCE
-        vertical_component = image_shift_y * distance_to_wall / CAMERA_FOCAL_DISTANCE
-        predicted_location = [pose.position.x - horizontal_component , pose.position.y - distance_to_wall, pose.position.z + vertical_component]
-
-    #Positive X
-    else:
-        print('posX')
+    if pose.orientation.z <= 0.5 and pose.orientation.z >= -0.5:
         distance_to_wall = 12.5 - pose.position.x
         horizontal_component = image_shift_x * distance_to_wall / CAMERA_FOCAL_DISTANCE
         vertical_component = image_shift_y * distance_to_wall / CAMERA_FOCAL_DISTANCE
-        predicted_location = [pose.position.x + distance_to_wall , pose.position.y - horizontal_component , pose.position.z + vertical_component]
+        predicted_location = [12.5  , pose.position.y - horizontal_component , pose.position.z + vertical_component]
+
+    else:
+        orientation = 1
+        if pose.orientation.z < -0.5 : orientation = -1
+    
+        distance_to_wall =  7.5 - pose.position.y * orientation
+        horizontal_component = image_shift_x * distance_to_wall / CAMERA_FOCAL_DISTANCE
+        vertical_component = image_shift_y * distance_to_wall / CAMERA_FOCAL_DISTANCE
+        predicted_location = [pose.position.x + horizontal_component*orientation , 7.5*orientation, pose.position.z + vertical_component]
+    
     
     point_predicted = Point()
     point_predicted.x = predicted_location[0]
     point_predicted.y = predicted_location[1]
     point_predicted.z = predicted_location[2]
-
 
     return point_predicted

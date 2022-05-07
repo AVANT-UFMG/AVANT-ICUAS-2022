@@ -1,6 +1,4 @@
-#from .PointClass import Point
-
-from trajectory_msgs.msg import MultiDOFJointTrajectoryPoint, MultiDOFJointTrajectory 
+from trajectory_msgs.msg import MultiDOFJointTrajectory 
 
 class Trajectory: 
 

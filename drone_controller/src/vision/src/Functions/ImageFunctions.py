@@ -1,9 +1,9 @@
 import cv2 as cv
 import rospy
 from sensor_msgs.msg import Image
-from std_msgs.msg import Header
 from cv_bridge import CvBridge
 
+debugMission = False
 bridge = CvBridge()
 
 def IsBlackColor(pointRGB):
@@ -72,9 +72,14 @@ ImageCallback = None
 def CameraCallback(data):
     global ImageCallback
     ImageCallback = bridge.imgmsg_to_cv2(data, 'bgr8') 
-    #print("receive")
+
+rospy.Subscriber('/red/camera/color/image_raw', Image, CameraCallback)
 
 def GetImageFromDrone():
+    global ImageCallback
+    if debugMission :
+        cv.imshow("debug",ImageCallback)
+        cv.waitKey(0)
     return ImageCallback
 
 def LabelImage(squares, image):
@@ -82,7 +87,6 @@ def LabelImage(squares, image):
 
     cv.drawContours(imageLabelTag, squares, -1, (255, 255, 0), 1)
     #cv.circle(imageLabelTag, (xCenter, yCenter), 1, (255, 0, 255), -1)
-
     return imageLabelTag
 
 def GetImageToPublish(img):
