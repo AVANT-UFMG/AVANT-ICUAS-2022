@@ -2,7 +2,7 @@
 #coding: utf-8
 
 import rospy
-from custom_msgs_srvs.srv import Plan, PlanRequest
+from custom_msgs_srvs.srv import Plan, PlanRequest, TrajectoryHandleService, TrajectoryHandleServiceRequest
 from custom_msgs_srvs.msg import TrajectoryHandle
 from nav_msgs.msg import OccupancyGrid, Odometry
 from geometry_msgs.msg import Point, PoseStamped
@@ -10,7 +10,7 @@ from geometry_msgs.msg import Point, PoseStamped
 
 class PlanningManager:
     def __init__(self, planner):
-        self.drone_pos = None 
+        self.drone_pos = None
         self.goal_pos = None
         self.occ_grid = None
 
@@ -30,12 +30,16 @@ class PlanningManager:
         except KeyError as e:
             rospy.logerr('The requested planner is not available.')
 
+        rospy.wait_for_service('/red/avant_cmd/exec_trajectory')
+        self.exec_trajectory = rospy.ServiceProxy('/red/avant_cmd/exec_trajectory', TrajectoryHandleService)
+
     def map_callback(self, msg):
         rospy.logdebug('Map received.')
         self.occ_grid = msg
 
     def odom_callback(self, msg):
         self.drone_pos = msg.pose.pose.position
+
 
     def goal_callback(self, msg):
         self.goal_pos = msg.pose.position
@@ -57,7 +61,10 @@ class PlanningManager:
         request.goal_position = goal_position
         resp = self.planner(request)
         
-        self.plan_pub.publish(resp.trajectory)
+        # self.plan_pub.publish(resp.trajectory)    NAO APAGA
+        msg = TrajectoryHandleServiceRequest()
+        msg.points = resp.trajectory.points
+        self.exec_trajectory(msg)
 
 rospy.init_node('planning_manager')
 planner = rospy.get_param(param_name="planning_manager/planner", default="grid_planner")

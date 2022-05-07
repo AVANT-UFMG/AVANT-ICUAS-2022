@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # DroneCMD.py
 # Esse arquivo apresenta a classe DroneCMD que contem todas as funçõs de manipulação do movimento do drone
 
