@@ -118,11 +118,6 @@ start_launch_ball = rospy.Publisher('/Task3Controller/Start', Bool, queue_size=1
 
 rate = rospy.Rate(10)
 while not rospy.is_shutdown():
-    try:
-        if controller.pos.x > 0:
-            break
-    except:
-        continue
 
     if controller.pos is None or controller.ori is None:
         rospy.loginfo('Waiting for odometry data.')
@@ -139,6 +134,9 @@ while not rospy.is_shutdown():
         controller.go(controller.closest_obs_dist)
     else:
         controller.go(5.0)
+
+    if controller.pos.x > 0:
+            break
     
     rate.sleep()
 
