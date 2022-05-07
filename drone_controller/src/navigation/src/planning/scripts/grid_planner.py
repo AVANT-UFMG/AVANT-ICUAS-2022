@@ -71,15 +71,17 @@ class Planner:
                             rospy.logdebug('Removed node {}'.format((i, j, k)))
                         except nx.NetworkXError as e:
                             rospy.logwarn('Could not remove node {} because: {}'.format((i, j, k), str(e)))
+        print(self.G.nodes())
         rospy.loginfo('{} nodes removed.'.format(total_nodes - self.G.number_of_nodes()))
 
     def pos_to_node(self, pos, cell_size):
+        pos = [pos[0] + self.map_dim[0]/2, pos[1] + self.map_dim[1]/2, pos[2]]
         pos = np.floor(np.array(pos)/cell_size).astype(int)
         pos = tuple(pos)
         return pos
 
     def node_to_pos(self, node, cell_size):
-        pos = np.array(node) * cell_size + cell_size/2
+        pos = np.array(node) * cell_size + cell_size/2 - np.array([self.map_dim[0]/2, self.map_dim[1]/2, 0])
         return pos
 
     def plan(self, start_pos, goal_pos):
@@ -91,6 +93,7 @@ class Planner:
         waypoints = []
         for p in path:
             waypoints.append(self.node_to_pos(p, self.cell_size))
+        print(waypoints)
         return waypoints
         
 

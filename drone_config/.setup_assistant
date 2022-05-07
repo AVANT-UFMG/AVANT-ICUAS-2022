@@ -1,0 +1,11 @@
+moveit_setup_assistant_config:
+  URDF:
+    package: drone_controller
+    relative_path: box.urdf
+    xacro_args: ""
+  SRDF:
+    relative_path: config/kopterworx.srdf
+  CONFIG:
+    author_name: Leonardo dos Santos
+    author_email: leohmcs@ufmg.br
+    generated_timestamp: 1647795603

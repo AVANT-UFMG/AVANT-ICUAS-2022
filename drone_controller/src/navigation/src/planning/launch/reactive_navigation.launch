@@ -1,0 +1,4 @@
+<launch>
+    <node pkg="drone_controller" type="check_collision.py" name="check_collision" output="screen" respawn="true" />
+    <node pkg="drone_controller" type="reactive_planner.py" name="reactive_planner" output="screen" respawn="true" />
+</launch>
