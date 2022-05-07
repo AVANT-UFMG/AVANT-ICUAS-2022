@@ -44,6 +44,12 @@ def list_to_Vector3(input_list):
     msg.z = input_list[2]
     return msg
 
+def draw_point(point,clr):
+    global image_cpy
+    x = int(point[0])
+    y = int(point[1])
+    cv2.circle(image_cpy, (x,y), radius=1, color=clr, thickness=3)
+
 def calculate_artag_position(img,rect):
     global REAL_LIFE_ARTAG_WIDTH
     global gps
@@ -55,19 +61,31 @@ def calculate_artag_position(img,rect):
     rect_width = rect[1][0]
     rect_height = rect[1][1]
 
-    real_depth = REAL_LIFE_ARTAG_WIDTH*fx/rect_width
+    real_depth = REAL_LIFE_ARTAG_WIDTH*fx/rect_width #1
 
-    centroid = (rect_x+rect_width/2,rect_y+rect_height/2)
+    #real_depth = 12.5 - gps.x #2
+
+    centroid = (rect_x,rect_y)
+
+    draw_point(centroid,(255,0,0))
+
     img_height,img_width = image_cpy.shape[:2]
     image_center = (img_width/2,img_height/2)
 
-    image_shift_x = centroid[0] - image_center[0]
-    image_shift_y = centroid[1] - image_center[1]
+    draw_point(image_center,(0,255,0))
 
-    real_shift_y = image_shift_x * real_depth / fx
+    #Assumindo um eixo de coordenadas cartesiano centrado na imagem, calculamos os deslocamentos do artag em relação ao centro da imagem
+    image_shift_x = centroid[0] - image_center[0]
+    image_shift_y = image_center[1] - centroid[1]
+
+    #Assumindo agora um eixo de coordenadas centrado no drone que segue as mesmas direções do eixo do gazebo
+    real_shift_y = (-1) * image_shift_x * real_depth / fx
     real_shift_z = image_shift_y * real_depth / fy
 
-    predicted_location = [real_depth + gps.x,gps.y + real_shift_y ,gps.z + (real_shift_z)*(-1)]
+    #Transformando para o eixo de coordenada do gazebo
+    predicted_location = [gps.x + real_depth , gps.y + real_shift_y , gps.z + real_shift_z]
+
+    print(f'\nReal depth = {real_depth}\nImage shift = {(image_shift_x,image_shift_y)}\nReal shift = {(real_shift_y,real_shift_z)}\nPredicted location = {predicted_location}')
 
     return predicted_location
 
@@ -84,13 +102,21 @@ def detect_code(image):
 
     only_filled_shapes = inv | thresh
 
+    cv2.imshow("detection", only_filled_shapes)
+    cv2.waitKey(1)
+
     result = ignore_helixes(only_filled_shapes)
 
     contours,_ = cv2.findContours(result, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
-    if not contours: return
+    if not contours: return None
 
-    rect = cv2.minAreaRect(contours[0])
+    max_cont = contours[0]
+    for c in contours:
+        if cv2.arcLength(c, True) > cv2.arcLength(max_cont, True):
+            max_cont = c
+
+    rect = cv2.minAreaRect(max_cont)
 
     return rect
 
@@ -100,10 +126,16 @@ def gps_callback(data):
     global gps
     gps = data.pose.pose.position
 
-image = None
+image = []
 def camera_image_callback(data):
     global image
     image = bridge.imgmsg_to_cv2(data, 'rgb8')  
+
+depth_map = []
+def camera_depth_callback(data):
+    global depth_map
+    data.encoding = "mono16"
+    depth_map = bridge.imgmsg_to_cv2(data, 'mono16')  
 
 #Crinado nó
 node_name = 'artag_position_estimator'
@@ -113,9 +145,12 @@ print(f'Node {node_name} iniciado com sucesso')
 #Criando subsscribers
 rospy.Subscriber('/red/camera/color/image_raw', Image, callback=camera_image_callback)
 rospy.Subscriber('/red/odometry', Odometry, callback=gps_callback)
+rospy.Subscriber('/red/camera/depth/image_raw', Image, callback=camera_depth_callback)
+
 
 #Criando publishers
-pub = rospy.Publisher('/artag/estimated_location', Vector3, queue_size=10)
+location_pub = rospy.Publisher('/artag/estimated_location', Vector3, queue_size=10)
+image_pub = rospy.Publisher('/red/camera/color/image_raw/artag', Image, queue_size=10000)
 
 #GLOBALS
 camera_info = rospy.wait_for_message('/red/camera/color/camera_info',CameraInfo)
@@ -128,20 +163,44 @@ REAL_LIFE_ARTAG_WIDTH = 0.2
 #MAIN LOOP
 while(not rospy.is_shutdown()):
 
-    if image.any() == None: continue
+    if len(image) == 0 or gps == None: continue
 
     image_cpy = image.copy()
 
     rect = detect_code(image_cpy)
 
-    if not rect: continue
+    if rect == None: continue
 
-    box = rect_to_points(rect)
+    w = rect[1][0]
 
-    cv2.drawContours(image,[box],0,(0,0,255),1)
+    if w <= 0: continue
+
+    box = rect_to_points(rect)    
     
     predicted_location = calculate_artag_position(image_cpy, rect)
 
     msg = list_to_Vector3(predicted_location)
 
-    pub.publish(msg)
+    location_pub.publish(msg)
+
+    cv2.drawContours(image,[box],0,(0,0,255),1)
+    cv2.imshow("cam", image_cpy)
+    cv2.waitKey(1)
+
+# while(not rospy.is_shutdown()):
+
+#     if len(image) == 0 or gps == None: continue
+
+#     image_cpy = image.copy()
+
+#     rect = detect_code(image_cpy)
+
+#     if rect == None: continue
+
+#     box = rect_to_points(rect)    
+
+#     cv2.drawContours(image_cpy,[box],0,(0,0,255),1)
+#     cv2.imshow("cam", image_cpy)
+#     cv2.waitKey(1)
+
+#     image_pub.publish(bridge.cv2_to_imgmsg(image_cpy, encoding="passthrough"))
