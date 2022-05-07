@@ -116,6 +116,8 @@ controller = ReactiveController()
 
 rate = rospy.Rate(10)
 while not rospy.is_shutdown():
+    if controller.pos.x > 0:
+        break
     if controller.pos is None or controller.ori is None:
         rospy.loginfo('Waiting for odometry data.')
         continue
