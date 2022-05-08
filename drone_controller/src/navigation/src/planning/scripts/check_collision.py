@@ -48,8 +48,8 @@ while(not rospy.is_shutdown()):
 
     reduced_depth_map = depth_map[ y1 : y2 , x1 : x2 ]
 
-    cv2.imshow('rdm',reduced_depth_map)
-    cv2.waitKey(1)
+    #cv2.imshow('rdm',reduced_depth_map)
+    #cv2.waitKey(1)
 
     collision_msg = Bool(data=False)
     # collision_msg.data = False
