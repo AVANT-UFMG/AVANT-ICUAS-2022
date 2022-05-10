@@ -1,10 +1,11 @@
 import rospy
 
 from sensor_msgs.msg import Image, CameraInfo
+from geometry_msgs.msg import Point as PointMsg
 from geometry_msgs.msg import Pose
 from std_msgs.msg import Bool
 
-from Class import Point 
+from Class import Point
 from Functions import (GetStrategies, MoveToPoint, ArrivePoint, 
                         GetImageFromDrone, GetArTag, EstimatePointPosition,
                         GetDronePoint, LabelImage, GetImageToPublish, WaitStablePosition)
@@ -19,7 +20,7 @@ def StartMissionCallback(data):
 
 rospy.Subscriber("/TagDetectionController/Start", Bool, StartMissionCallback)
 
-PointEstimatedPub = rospy.Publisher('/red/tag_position_reconstructed', Pose, queue_size=10)
+PointEstimatedPub = rospy.Publisher('/red/tag_position_reconstructed', PointMsg, queue_size=10)
 ImageAnnotatedPub = rospy.Publisher('/red/tag_image_annotated', Image, queue_size=10000)
 TagDetectionFinishPub = rospy.Publisher('/TagDetectionController/Finish', Pose, queue_size=10)
 
@@ -84,14 +85,19 @@ def ExecuteMission():
     # Publish Image
     if debugMission : print(resultWorldPoint)
 
-    msgFinal = Pose()
-    msgFinal.position.x = resultWorldPoint.x
-    msgFinal.position.y = resultWorldPoint.y
-    msgFinal.position.z = resultWorldPoint.z
-    msgFinal.orientation.z = currentPointDrone.orientation.z
-    msgFinal.orientation.w = 1.0
+    msgFinalController = Pose()
+    msgFinalController.position.x = resultWorldPoint.x
+    msgFinalController.position.y = resultWorldPoint.y
+    msgFinalController.position.z = resultWorldPoint.z
+    msgFinalController.orientation.z = currentPointDrone.orientation.z
+    msgFinalController.orientation.w = 1.0
 
-    TagDetectionFinishPub.publish(msgFinal)
+    msgFinal = PointMsg()
+    msgFinal.x = resultWorldPoint.x
+    msgFinal.y = resultWorldPoint.y
+    msgFinal.z = resultWorldPoint.z
+
+    TagDetectionFinishPub.publish(msgFinalController)
     PointEstimatedPub.publish(msgFinal)
     ImageAnnotatedPub.publish(GetImageToPublish(finalImageLabel))
 

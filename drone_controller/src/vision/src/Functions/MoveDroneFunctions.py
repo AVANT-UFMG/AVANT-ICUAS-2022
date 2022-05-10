@@ -49,7 +49,7 @@ def MoveToPoint(point):
         timeW += 1
     
     pub.publish(point.GetPoseStamped())
-    time.sleep(5)
+    time.sleep(6)
     ArrivePoint(point)
 
 def ComparePoints(point, gps_point):

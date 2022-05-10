@@ -90,5 +90,5 @@ def LabelImage(squares, image):
     return imageLabelTag
 
 def GetImageToPublish(img):
-    return bridge.cv2_to_imgmsg(img)
+    return bridge.cv2_to_imgmsg(img, "bgr8")
 
